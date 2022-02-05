@@ -18,6 +18,7 @@ aws_key =  parser.get('api_tracker', 'aws_key')
 def search_recent_tweets_as_df(query, tweet_fields):
     
     client = tweepy.Client(bearer_token=bearer_token)
+    #tweeets = client.get_all_tweets_count(query=query) #get more tweets
     tweets = client.search_recent_tweets(query=query, tweet_fields=tweet_fields, max_results=100)
     df=pd.DataFrame(tweets.data)
     

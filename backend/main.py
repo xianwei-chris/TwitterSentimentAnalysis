@@ -23,12 +23,12 @@ def get_pagename(keyword: Keyword):
 
     df = twitter_sentiment.search_recent_tweets_as_df(query, tweet_fields)
     df_sentiment = twitter_sentiment.text_sentiment(df)
-    print(df_sentiment.head())
-
-    return {"page_name": keyword.pagename,
-            "sample_text": df.text[1],
-            "sentiment_score":df_sentiment.sentiment[1]
-            }
+    
+    df_sentiment['max_score'] = df_sentiment[['sentiment_score_positive','sentiment_score_negative','sentiment_score_mixed']].max(axis=1)
+    df_sentiment = df_sentiment[['text','created_at','sentiment','sentiment_score_positive',
+                'sentiment_score_negative', 'sentiment_score_mixed','max_score']].sort_values(by=['created_at'],ascending=False).reset_index(drop=True)
+    
+    return df_sentiment.to_json()
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8080)
