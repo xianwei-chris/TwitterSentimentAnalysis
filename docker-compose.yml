@@ -1,0 +1,23 @@
+services:
+  frontend:
+    build: 
+      context: . #to allow Docker copy file from root folder
+      dockerfile: ./docker/frontend/Dockerfile
+    image: twitter_frontend #pull from dockerhub, else do build
+    container_name: twitter-frontend
+    ports:
+      - 8501:8501
+    depends_on:
+      - backend
+    #volumes:
+    #    - ./storage:/storage
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+    image: twitter_backend
+    container_name: twitter-backend
+    ports:
+      - 8080:8080
+    #volumes:
+    #  - ./storage:/storage
