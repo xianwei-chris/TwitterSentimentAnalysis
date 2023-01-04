@@ -1,7 +1,7 @@
 import pandas as pd
 import tweepy
-from configparser import ConfigParser
 import boto3
+from configparser import ConfigParser
 
 parser = ConfigParser()
 parser.read("api_auth.cfg")
