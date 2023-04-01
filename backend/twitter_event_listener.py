@@ -3,21 +3,23 @@
 # SreamingClient methods
 # filter() vs sample()
 
+import re
 import tweepy
 import time
 import boto3
-from configparser import ConfigParser
+from configparser import RawConfigParser
 
-parser = ConfigParser()
-parser.read("api_auth.cfg")
+parser = RawConfigParser()
+parser.read("backend/api_auth.cfg")
 
 # This is the super secret information that will allow access to the Twitter API and AWS Comprehend
 bearer_token = parser.get("api_tracker", "bearer_token")
+#bearer_token = re.sub(r'"', '', bearer_token)
+
 aws_key_id = parser.get("api_tracker", "aws_key_id")
 aws_key = parser.get("api_tracker", "aws_key")
 
 search_term = ["trading"]
-
 
 def get_sentiment_based_on_text(text):
     client = boto3.client("comprehend", region_name="us-west-2")
@@ -30,6 +32,7 @@ class MyStream(tweepy.StreamingClient):
     
     def on_tweet(self, tweet):
         if tweet.referenced_tweets == None:
+            print(tweet.text)
             sentiment = get_sentiment_based_on_text(tweet.text)
             """
             example sentiment: {'Sentiment': 'NEUTRAL', 
@@ -38,7 +41,7 @@ class MyStream(tweepy.StreamingClient):
                                                    'Neutral': 0.6611716747283936, 
                                                    'Mixed': 2.6676372726797126e-05}
             """
-            if sentiment['SentimentScore'][sentiment['Sentiment'].title()] >= 0.99 and sentiment['Sentiment'] != 'NEUTRAL':
+            if sentiment['SentimentScore'][sentiment['Sentiment'].title()] >= 0.1 and sentiment['Sentiment'] != 'NEUTRAL':
                 print("tweets")
                 print(tweet.text)
                 print("sentiment")
@@ -48,6 +51,7 @@ class MyStream(tweepy.StreamingClient):
 stream = MyStream(bearer_token=bearer_token)
 
 previousRules = stream.get_rules().data
+
 if previousRules:
     stream.delete_rules(previousRules)
 
